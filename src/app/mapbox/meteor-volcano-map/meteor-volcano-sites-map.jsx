@@ -11,7 +11,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 // const mapboxToken = process.env.MAPBOX_TOKEN;
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-export default function MeteorSitesMap() {
+export default function MeteorVolcanoSitesMap() {
 	const [meteorOn, setMeteorOn] = useState(false);
 	const [volcanoOn, setVolcanoOn] = useState(false);
 

@@ -32,7 +32,7 @@ export const navData = [
 			{
                 id: 0,
 				label: "Volcanoes",
-				link: "/mapbox/volcano-map",
+				link: "/mapbox/meteor-volcano-map",
 				icon: ""
 			},
 			{
