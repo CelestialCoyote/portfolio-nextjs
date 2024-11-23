@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Map, { Layer, Source } from "react-map-gl";
-import { stateFillLayer, stateHighlightLayer, stateSelectedLayer } from "./map-styles";
-import { zipFillLayer, zipHighlightLayer, zipSelectedLayer } from "./map-styles";
+import { useCallback, useMemo, useRef, useState } from "react";
+import Map, { Layer, Source, FullscreenControl, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
+import { stateFillLayer, stateHighlightLayer, countyFillLayer, countyHighlightLayer, zipFillLayer, zipHighlightLayer } from "./map-styles";
 import ZoomLevelDisplay from "@/components/maps/zoom-level-display";
 import SelectionAreaType from "./selection-area-type";
 import DraggablePopup from "./draggable-popup";
@@ -23,16 +22,17 @@ const initialViewState = {
 
 export default function SelectCoverageAreaMap() {
     const mapRef = useRef();
-    const [initialView] = useState(initialViewState);
     const [mapStyle] = useState("mapbox://styles/mapbox/light-v11");
     const [selectAreaType, setSelectAreaType] = useState("state");
 
     const [stateHoverInfo, setStateHoverInfo] = useState(null);
     const [selectedStates, setSelectedStates] = useState([]);
 
+    const [countyHoverInfo, setCountyHoverInfo] = useState(null);
+    const [selectedCounty, setSelectedCounty] = useState([]);
+
     const [zipHoverInfo, setZipHoverInfo] = useState(null);
     const [selectedZip, setSelectedZip] = useState([]);
-
 
 
     // Handle hover effect for states
@@ -54,21 +54,20 @@ export default function SelectCoverageAreaMap() {
         []
     );
 
-    // Handle state click for selecting/deselecting
-    const onStateClick = useCallback(
+    // Handle hover effect for counties
+    const onCountyHover = useCallback(
         (event) => {
-            const state = event.features && event.features[0];
-            const name = state && state.properties.NAME;
+            const county = event.features && event.features[0];
+            const countyName = county && county.properties.GEOID;
 
-            if (name) {
-                setSelectedStates((prevSelected) => {
-                    // Toggle the state in the selected array
-                    if (prevSelected.includes(name)) {
-                        return prevSelected.filter((s) => s !== name);
-                    } else {
-                        return [...prevSelected, name];
-                    }
+            if (county) {
+                setCountyHoverInfo({
+                    longitude: event.lngLat.lng,
+                    latitude: event.lngLat.lat,
+                    COUNTY: countyName,
                 });
+            } else {
+                setCountyHoverInfo(null);
             }
         },
         []
@@ -93,55 +92,25 @@ export default function SelectCoverageAreaMap() {
         []
     );
 
-    // Handle state click for selecting/deselecting
-    const onZipClick = useCallback(
-        (event) => {
-            const zip = event.features && event.features[0];
-            const zipNumber = zip && zip.properties.ZCTA5CE20;
-
-            if (zipNumber) {
-                setSelectedZip((prevSelected) => {
-                    // Toggle the state in the selected array
-                    if (prevSelected.includes(zipNumber)) {
-                        return prevSelected.filter((s) => s !== zipNumber);
-                    } else {
-                        return [...prevSelected, zipNumber];
-                    }
-                });
-            }
-        },
-        []
-    );
-
     // Decide hover behavior based on selectAreaType
     const onHover = useCallback(
         (event) => {
             if (selectAreaType === "state") {
                 onStateHover(event);
+            } else if (selectAreaType === "county") {
+                onCountyHover(event);
             } else if (selectAreaType === "zip") {
                 onZipHover(event);
             };
         },
-        [selectAreaType, onStateHover, onZipHover]
-    );
-
-    // Decide click behavior based on selectAreaType
-    const onClick = useCallback(
-        (event) => {
-            if (selectAreaType === "state") {
-                onStateClick(event);
-            } else if (selectAreaType === "zip") {
-                onZipClick(event);
-            };
-        },
-        [selectAreaType, onStateClick, onZipClick]
+        [selectAreaType, onStateHover, onCountyHover, onZipHover]
     );
 
     // Filters for hover effect
     const hoverState = (stateHoverInfo && stateHoverInfo.STATE) || '';
+    const hoverCounty = (countyHoverInfo && countyHoverInfo.COUNTY) || '';
     const hoverZip = (zipHoverInfo && zipHoverInfo.ZIP) || '';
 
-    // Filter for highlighted state (on hover)
     const stateFilter = useMemo(() => {
         if (hoverState) {
             return ['in', 'STATEFP', hoverState]; // Filter based on STATEFP (state code)
@@ -150,10 +119,13 @@ export default function SelectCoverageAreaMap() {
         }
     }, [hoverState]);
 
-    // Filter for selected states
-    const selectedStateFilter = useMemo(() => {
-        return ['in', 'NAME', ...selectedStates];
-    }, [selectedStates]);
+    const countyFilter = useMemo(() => {
+        if (hoverCounty) {
+            return ['in', 'GEOID', hoverCounty]; // Filter based on STATEFP (state code)
+        } else {
+            return ['==', 'GEOID', '']; // Default filter for no state hover
+        }
+    }, [hoverCounty]);
 
     const zipFilter = useMemo(() => {
         if (hoverZip) {
@@ -162,12 +134,6 @@ export default function SelectCoverageAreaMap() {
             return ['==', 'ZCTA5CE20', '']; // Default filter for no ZIP hover
         }
     }, [hoverZip]);
-
-    // Filter for selected states
-    const selectedZipFilter = useMemo(() => {
-        return ['in', 'ZCTA5CE20', ...selectedZip];
-    }, [selectedZip]);
-
 
     return (
         <div className="flex w-full h-full">
@@ -178,30 +144,35 @@ export default function SelectCoverageAreaMap() {
                 mapboxAccessToken={mapboxToken}
                 interactiveLayerIds={["state-fill", "county-fill", "zip-fill"]}
                 onMouseMove={onHover}
-                onClick={onClick}
                 ref={mapRef}
                 style={{ borderRadius: 8 }}
             >
                 {selectAreaType == "state" && (
                     <Source type="vector" url="mapbox://celestialcoyote.98li4t0s">
-                        {/* State fill layer for default color */}
                         <Layer
                             beforeId="waterway-label"
                             {...stateFillLayer}
                         />
 
-                        {/* State layer for hover effect */}
                         <Layer
                             beforeId="waterway-label"
                             {...stateHighlightLayer}
                             filter={stateFilter}
                         />
+                    </Source>
+                )}
 
-                        {/* State layer for selected states */}
+                {selectAreaType == "county" && (
+                    <Source type="vector" url="mapbox://celestialcoyote.98li4t0s">
                         <Layer
                             beforeId="waterway-label"
-                            {...stateSelectedLayer}
-                            filter={selectedStateFilter}
+                            {...countyFillLayer}
+                        />
+
+                        <Layer
+                            beforeId="waterway-label"
+                            {...countyHighlightLayer}
+                            filter={countyFilter}
                         />
                     </Source>
                 )}
@@ -220,22 +191,18 @@ export default function SelectCoverageAreaMap() {
                             {...zipHighlightLayer}
                             filter={zipFilter}
                         />
-
-                        <Layer
-                            id="zip-highlight"
-                            beforeId="waterway-label"
-                            {...zipSelectedLayer}
-                            filter={selectedZipFilter}
-                        />
                     </Source>
                 )}
 
-                {/* Custom controls */}
-                <div className="absolute top-2 left-0 right-0 hidden lg:block">
-                    <ZoomLevelDisplay
-                        mapRef={mapRef}
-                        initialView={initialView}
-                    />
+                {/* Native Mapbox controls. */}
+                <FullscreenControl />
+                <GeolocateControl />
+                <NavigationControl />
+                <ScaleControl />
+
+                {/* Custom controls. */}
+                <div className="absolute top-6 left-0 right-0">
+                    <ZoomLevelDisplay mapRef={mapRef} />
                 </div>
 
                 <div className="absolute top-6 left-6">
@@ -244,66 +211,97 @@ export default function SelectCoverageAreaMap() {
                         setSelectAreaType={setSelectAreaType}
                     />
                 </div>
+
+                {/* Draggable window for selected states */}
+                {selectAreaType == "state" &&
+                    <DraggablePopup>
+                        <div
+                            className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
+                            style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
+                        >
+                            <h4 className="text-center font-bold mb-2">
+                                Selected States
+                            </h4>
+
+                            <div className="h-48 text-sm overflow-auto">
+                                {selectedStates.length > 0 ? (
+                                    // Sort states when rendering
+                                    selectedStates
+                                        .slice() // create a copy to avoid mutating original state
+                                        .sort()
+                                        .map((state, index) => (
+                                            <p key={index}>{state}</p>
+                                        ))
+                                ) : (
+                                    <p className="text-center text-mw_red">
+                                        No states selected
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </DraggablePopup>
+                }
+
+                {/* Draggable window for selected counties */}
+                {selectAreaType == "county" &&
+                    <DraggablePopup>
+                        <div
+                            className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
+                            style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
+                        >
+                            <h4 className="text-center font-bold mb-2">
+                                Selected Counties
+                            </h4>
+
+                            <div className="h-48 text-sm overflow-auto">
+                                {selectedCounty.length > 0 ? (
+                                    // Sort states when rendering
+                                    selectedCounty
+                                        .slice() // create a copy to avoid mutating original state
+                                        .sort()
+                                        .map((county, index) => (
+                                            <p key={index}>{county}</p>
+                                        ))
+                                ) : (
+                                    <p className="text-center text-mw_red">
+                                        No counties selected
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </DraggablePopup>
+                }
+
+                {/* Draggable window for selected zip codes */}
+                {selectAreaType == "zip" &&
+                    <DraggablePopup>
+                        <div
+                            className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
+                            style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
+                        >
+                            <h4 className="text-center font-bold mb-2">
+                                Selected Zip Codes
+                            </h4>
+
+                            <div className="h-48 text-sm overflow-auto">
+                                {selectedZip.length > 0 ? (
+                                    // Sort states when rendering
+                                    selectedZip
+                                        .slice() // create a copy to avoid mutating original state
+                                        .sort()
+                                        .map((zip, index) => (
+                                            <p key={index}>{zip}</p>
+                                        ))
+                                ) : (
+                                    <p className="text-center text-mw_red">
+                                        No zip codes selected
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </DraggablePopup>
+                }
             </Map>
-
-            {/* Draggable window for selected states */}
-            {selectAreaType == "state" &&
-                <DraggablePopup>
-                    <div
-                        className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
-                        style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
-                    >
-                        <h4 className="text-center font-bold mb-2">
-                            Selected States
-                        </h4>
-
-                        <div className="h-48 text-sm overflow-auto">
-                            {selectedStates.length > 0 ? (
-                                // Sort states when rendering
-                                selectedStates
-                                    .slice() // create a copy to avoid mutating original state
-                                    .sort()
-                                    .map((state, index) => (
-                                        <p key={index}>{state}</p>
-                                    ))
-                            ) : (
-                                <p className="text-center text-mw_red">
-                                    No states selected
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </DraggablePopup>
-            }
-
-            {selectAreaType == "zip" &&
-                <DraggablePopup>
-                    <div
-                        className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
-                        style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
-                    >
-                        <h4 className="text-center font-bold mb-2">
-                            Selected Zip Codes
-                        </h4>
-
-                        <div className="h-48 text-sm overflow-auto">
-                            {selectedZip.length > 0 ? (
-                                // Sort states when rendering
-                                selectedZip
-                                    .slice() // create a copy to avoid mutating original state
-                                    .sort()
-                                    .map((zip, index) => (
-                                        <p key={index}>{zip}</p>
-                                    ))
-                            ) : (
-                                <p className="text-center text-mw_red">
-                                    No zip codes selected
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </DraggablePopup>
-            }
         </div>
     );
 };

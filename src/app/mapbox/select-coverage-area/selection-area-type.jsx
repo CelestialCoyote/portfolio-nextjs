@@ -24,7 +24,7 @@ export default function SelectionAreaType({ selectAreaType, setSelectAreaType })
                 </div>
             </div>
 
-            {/*
+            
             <div className="flex flex-col">
                 <div className="flex items-center gap-x-3 mb-2">
                     <input
@@ -40,7 +40,7 @@ export default function SelectionAreaType({ selectAreaType, setSelectAreaType })
                     </h3>
                 </div>
             </div>
-            */}
+           
             
             <div className="flex flex-col">
                 <div className="flex items-center gap-x-3 mb-2">
