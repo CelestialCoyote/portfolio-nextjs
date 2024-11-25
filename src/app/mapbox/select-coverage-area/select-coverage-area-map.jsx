@@ -10,6 +10,7 @@ import DraggablePopup from "./draggable-popup";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useStateHandlers } from "./state-selection-handlers";
+import { StateHoverPopup, SelectedStatesPopup } from "./state-selection-handlers";
 
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -107,11 +108,12 @@ export default function SelectCoverageAreaMap() {
                 <NavigationControl />
                 <ScaleControl position="bottom-right" />
 
-                {/* Custom controls. */}
+                {/* Custom controls - shows current zoom level */}
                 <div className="absolute top-6 left-0 right-0">
                     <ZoomLevelDisplay mapRef={mapRef} />
                 </div>
 
+                {/* Custom controls - choose which area type to select state, county, or zip */}
                 <div className="absolute top-6 left-6">
                     <SelectionAreaType
                         selectAreaType={selectAreaType}
@@ -120,51 +122,19 @@ export default function SelectCoverageAreaMap() {
                 </div>
 
                 {/* Popup for hovered state */}
-                {hoverState && (
-                    <Popup
-                        offset={25}
-                        anchor="bottom"
-                        latitude={stateHoverInfo.latitude}
-                        longitude={stateHoverInfo.longitude}
-                        closeButton={false}
-                        closeOnClick={false}
-                    >
-                        <div className="flex bg-blue-400 text-black justify-center p-2">
-                            <p className="font-bold">State:</p>
-                            <p className="ml-2">{hoverState}</p>
-                        </div>
-                    </Popup>
-                )}
+                <StateHoverPopup
+                    hoverState={hoverState}
+                    stateHoverInfo={stateHoverInfo}
+                />
 
                 {/* Draggable window for selected states */}
-                {selectAreaType == "state" &&
-                    <DraggablePopup>
-                        <div
-                            className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
-                            style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
-                        >
-                            <h4 className="text-center font-bold mb-2">
-                                Selected States
-                            </h4>
+                <SelectedStatesPopup
+                    selectAreaType={selectAreaType}
+                    selectedStates={selectedStates}
+                />
 
-                            <div className="h-48 text-sm overflow-auto">
-                                {selectedStates.length > 0 ? (
-                                    // Sort states when rendering
-                                    selectedStates
-                                        .slice() // create a copy to avoid mutating original state
-                                        .sort()
-                                        .map((state, index) => (
-                                            <p key={index}>{state}</p>
-                                        ))
-                                ) : (
-                                    <p className="text-center text-mw_red">
-                                        No states selected
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </DraggablePopup>
-                }
+
+
             </Map>
         </div>
     );
