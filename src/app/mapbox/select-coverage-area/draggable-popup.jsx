@@ -11,7 +11,9 @@ export default function DraggablePopup({ children }) {
     // Only access `window` on the client side
     useEffect(() => {
         const setInitialPosition = () => {
-            setPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+            // setPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+            // setPosition({ x: 20, y: 20 });  // Popup appears in upper left corner.
+            setPosition({ x: 20, y: window.innerHeight - 460 });  // Popup appears in lower left corner.
         };
 
         if (typeof window !== "undefined") {

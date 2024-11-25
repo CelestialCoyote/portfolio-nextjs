@@ -1,8 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import Map, { Layer, Source, FullscreenControl, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
-import { stateFillLayer, stateHighlightLayer, countyFillLayer, countyHighlightLayer, zipFillLayer, zipHighlightLayer } from "./map-styles";
+import Map, { Layer, Popup, Source } from "react-map-gl";
+import { FullscreenControl, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
+import { stateFillLayer, stateHighlightLayer, stateSelectedLayer } from "./map-styles-state";
+import { countyFillLayer, countyHighlightLayer } from "./map-styles-county";
+import { zipFillLayer, zipHighlightLayer } from "./map-styles-zip-code";
 import ZoomLevelDisplay from "@/components/maps/zoom-level-display";
 import SelectionAreaType from "./selection-area-type";
 import DraggablePopup from "./draggable-popup";
@@ -39,7 +42,8 @@ export default function SelectCoverageAreaMap() {
     const onStateHover = useCallback(
         (event) => {
             const state = event.features && event.features[0];
-            const stateName = state && state.properties.STATEFP;
+            // const stateName = state && state.properties.STATEFP;
+            const stateName = state && state.properties.NAME;
 
             if (state) {
                 setStateHoverInfo({
@@ -52,6 +56,27 @@ export default function SelectCoverageAreaMap() {
             }
         },
         []
+    );
+
+    // Handle state click for selecting/deselecting
+    const onStateClick = useCallback(
+        (event) => {
+            const state = event.features && event.features[0];
+            const name = state && state.properties.NAME;
+            // const name = state && state.properties.STUSPS;
+
+            if (name) {
+                setSelectedStates((prevSelected) => {
+                    // Toggle the state in the selected array
+                    if (prevSelected.includes(name)) {
+                        return prevSelected.filter((s) => s !== name);
+                    } else {
+                        return [...prevSelected, name];
+                    }
+                });
+            }
+        },
+        [setSelectedStates]
     );
 
     // Handle hover effect for counties
@@ -106,19 +131,38 @@ export default function SelectCoverageAreaMap() {
         [selectAreaType, onStateHover, onCountyHover, onZipHover]
     );
 
+    // Decide hover behavior based on selectAreaType
+    const onClickArea = useCallback(
+        (event) => {
+            if (selectAreaType === "state") {
+                onStateClick(event);
+            } else if (selectAreaType === "county") {
+                onCountyHover(event);
+            } else if (selectAreaType === "zip") {
+                onZipHover(event);
+            };
+        },
+        [selectAreaType, onStateHover, onCountyHover, onZipHover]
+    );
+
     // Filters for hover effect
     const hoverState = (stateHoverInfo && stateHoverInfo.STATE) || '';
-    const hoverCounty = (countyHoverInfo && countyHoverInfo.COUNTY) || '';
-    const hoverZip = (zipHoverInfo && zipHoverInfo.ZIP) || '';
-
     const stateFilter = useMemo(() => {
         if (hoverState) {
-            return ['in', 'STATEFP', hoverState]; // Filter based on STATEFP (state code)
+            return ['in', 'NAME', hoverState]; // Filter based on STATEFP (state code)
         } else {
-            return ['==', 'STATEFP', '']; // Default filter for no state hover
+            return ['==', 'NAME', '']; // Default filter for no state hover
         }
     }, [hoverState]);
+    
+    // Filter for selected states
+    const selectedStateFilter = useMemo(() => {
+        return ['in', 'NAME', ...selectedStates];
+        // return ['in', 'STUSPS', ...selectedStates];
+    }, [selectedStates]);
 
+
+    const hoverCounty = (countyHoverInfo && countyHoverInfo.COUNTY) || '';
     const countyFilter = useMemo(() => {
         if (hoverCounty) {
             return ['in', 'GEOID', hoverCounty]; // Filter based on STATEFP (state code)
@@ -127,6 +171,7 @@ export default function SelectCoverageAreaMap() {
         }
     }, [hoverCounty]);
 
+    const hoverZip = (zipHoverInfo && zipHoverInfo.ZIP) || '';
     const zipFilter = useMemo(() => {
         if (hoverZip) {
             return ['in', 'ZCTA5CE20', hoverZip]; // Filter based on ZCTA5CE20 (ZIP code)
@@ -144,6 +189,7 @@ export default function SelectCoverageAreaMap() {
                 mapboxAccessToken={mapboxToken}
                 interactiveLayerIds={["state-fill", "county-fill", "zip-fill"]}
                 onMouseMove={onHover}
+                onClick={onClickArea}
                 ref={mapRef}
                 style={{ borderRadius: 8 }}
             >
@@ -158,6 +204,12 @@ export default function SelectCoverageAreaMap() {
                             beforeId="waterway-label"
                             {...stateHighlightLayer}
                             filter={stateFilter}
+                        />
+
+                        <Layer
+                            beforeId="waterway-label"
+                            {...stateSelectedLayer}
+                            filter={selectedStateFilter}
                         />
                     </Source>
                 )}
@@ -198,7 +250,7 @@ export default function SelectCoverageAreaMap() {
                 <FullscreenControl />
                 <GeolocateControl />
                 <NavigationControl />
-                <ScaleControl />
+                <ScaleControl position="bottom-right" />
 
                 {/* Custom controls. */}
                 <div className="absolute top-6 left-0 right-0">
@@ -211,6 +263,23 @@ export default function SelectCoverageAreaMap() {
                         setSelectAreaType={setSelectAreaType}
                     />
                 </div>
+
+                {/* Popup for hovered state */}
+                {hoverState && (
+                    <Popup
+                        offset={25}
+                        anchor="bottom"
+                        latitude={stateHoverInfo.latitude}
+                        longitude={stateHoverInfo.longitude}
+                        closeButton={false}
+                        closeOnClick={false}
+                    >
+                        <div className="flex bg-blue-400 text-black justify-center p-2">
+                            <p className="font-bold">State:</p>
+                            <p className="ml-2">{hoverState}</p>
+                        </div>
+                    </Popup>
+                )}
 
                 {/* Draggable window for selected states */}
                 {selectAreaType == "state" &&
