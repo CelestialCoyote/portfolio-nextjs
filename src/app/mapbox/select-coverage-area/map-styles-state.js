@@ -33,7 +33,7 @@ export const stateSelectedLayer = {
     }
 };
 
-// Outline only layers.
+// Outline state only layer.
 export const stateLayer = {
     id: "state",
     type: "line",
