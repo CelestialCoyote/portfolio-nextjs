@@ -21,6 +21,19 @@ export const zipHighlightLayer = {
     }
 };
 
+// Selected state fill color
+export const zipSelectedLayer = {
+    id: 'zip-selected',
+    type: 'fill',
+    "source-layer": "zcta",
+    minzoom: 8,
+    maxzoom: 15,
+    paint: {
+        'fill-outline-color': 'rgba(0, 0, 255, 1.0)',
+        'fill-color': 'rgba(0, 0, 255, 0.3)'
+    }
+};
+
 // Highlighted zip code fill color
 export const zipLayer = {
     id: "zip",

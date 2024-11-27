@@ -22,7 +22,16 @@ export const countyHighlightLayer = {
 };
 
 // Selected county fill color
-
+export const countySelectedLayer = {
+    id: 'county-selected',
+    type: 'fill',
+    "source-layer": "county",
+    paint: {
+        'fill-outline-color': 'rgba(0, 128, 0, 1.0)',
+        'fill-color': 'rgba(0, 128, 0, 0.6)',
+        'fill-opacity': 0.8
+    }
+};
 
 
 // Outline county only layer
