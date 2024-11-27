@@ -1,15 +1,24 @@
 import { useCallback, useMemo } from "react";
 import { Popup } from "react-map-gl";
-import DraggablePopup from "./draggable-popup";
+import DraggablePopup from "../components/draggable-popup";
+import { stateFipsCodes } from "./state-fips-codes";
 
+
+// Helper function to get the USPS code from STATEFP
+const getStateUSPS = (stateFP) => {
+    const state = stateFipsCodes.find((state) => state.STATEFP === stateFP);
+    return state ? state.STUSPS : stateFP;  // Fallback to STATEFP if not found
+};
 
 // Handle hover effect for counties
 export const useCountyHandlers = ({
     setCountyHoverInfo,
-    setSelectedCounty,
-    selectedCounty,
-    hoverCounty
+    setSelectedCounties,
+    selectedCounties,
+    hoverCounty,
+    hoverCountyName
 }) => {
+    // Handle hover effect for counties
     const onCountyHover = useCallback((event) => {
         const county = event.features && event.features[0];
         const countyID = county && county.properties.GEOID;
@@ -27,28 +36,27 @@ export const useCountyHandlers = ({
         } else {
             setCountyHoverInfo(null);
         }
-    }, [setCountyHoverInfo]);
+    }, []);
 
     // Handle state click for selecting/deselecting
-    const onCountyClick = useCallback(
-        (event) => {
-            const county = event.features && event.features[0];
-            const id = county && county.properties.GEOID;
-            const name = county && county.properties.NAME;
-            const state = county && county.properties.STATEFP;
+    const onCountyClick = useCallback((event) => {
+        const county = event.features && event.features[0];
+        const id = county && county.properties.GEOID;
+        const name = county && county.properties.NAME;
+        const state = county && county.properties.STATEFP;
 
-            if (id) {
-                setSelectedCounty((prevSelected) => {
-                    const alreadySelected = prevSelected.find(c => c.id === id);
+        if (id) {
+            setSelectedCounties((prevSelected) => {
+                const alreadySelected = prevSelected.find(c => c.id === id);
 
-                    if (alreadySelected) {
-                        return prevSelected.filter((c) => c.id !== id);
-                    } else {
-                        return [...prevSelected, { id, name, state }];
-                    }
-                });
-            }
-        }, [setSelectedCounty]);
+                if (alreadySelected) {
+                    return prevSelected.filter((c) => c.id !== id);
+                } else {
+                    return [...prevSelected, { id, name, state }];
+                }
+            });
+        };
+    }, []);
 
     const countyFilter = useMemo(() => {
         if (hoverCounty) {
@@ -60,18 +68,18 @@ export const useCountyHandlers = ({
 
     // Filter for selected counties
     const selectedCountyFilter = useMemo(() => {
-        const countyIds = selectedCounty.map(county => county.id);
+        const countyIds = selectedCounties.map(county => county.id);
 
         return ['in', 'GEOID', ...countyIds];
-    }, [selectedCounty]);
+    }, [selectedCounties]);
 
-    return { onCountyHover, onCountyClick, countyFilter, selectedCountyFilter };
+    return { onCountyHover, onCountyClick, countyFilter, selectedCountyFilter }
 };
 
 
 
 // County hover popup and draggable window.
-export const CountyHoverPopup = ({ hoverCounty, countyHoverInfo }) => (
+export const CountyHoverPopup = ({ hoverCounty, hoverCountyName, countyHoverInfo }) => (
     hoverCounty && (
         <Popup
             offset={25}
@@ -83,15 +91,15 @@ export const CountyHoverPopup = ({ hoverCounty, countyHoverInfo }) => (
         >
             <div className="flex bg-blue-400 text-black justify-center p-2">
                 <p className="font-bold">County:</p>
-                <p className="ml-2">{hoverCounty}</p>
+                <p className="ml-2">{hoverCountyName}</p>
             </div>
         </Popup>
     )
 );
 
 
-export const SelectedCountyPopup = ({ selectAreaType, selectedCounty }) => (
-    selectAreaType == "county" && (
+export const SelectedCountyPopup = ({ selectAreaType, selectedCounties }) => (
+    selectAreaType === "county" && (
         <DraggablePopup>
             <div
                 className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
@@ -102,13 +110,14 @@ export const SelectedCountyPopup = ({ selectAreaType, selectedCounty }) => (
                 </h4>
 
                 <div className="h-48 text-sm overflow-auto">
-                    {selectedCounty.length > 0 ? (
-                        // Sort states when rendering
-                        selectedCounty
-                            .slice() // create a copy to avoid mutating original state
-                            .sort()
+                    {selectedCounties.length > 0 ? (
+                        selectedCounties
+                            .slice()
+                            .sort((a, b) => a.name.localeCompare(b.name)) // Optional: sort by county name
                             .map((county, index) => (
-                                <p key={index}>{county}</p>
+                                <p key={index}>
+                                    {county.name}, {getStateUSPS(county.state)}
+                                </p>
                             ))
                     ) : (
                         <p className="text-center text-mw_red">

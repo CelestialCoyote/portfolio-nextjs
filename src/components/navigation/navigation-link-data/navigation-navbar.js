@@ -49,13 +49,7 @@ export const navData = [
 			},
 			{
                 id: 3,
-				label: "Scales Map",
-				link: "/mapbox/scales",
-				icon: ""
-			},
-			{
-                id: 4,
-				label: "Boundaries",
+				label: "Select Area",
 				link: "/mapbox/select-coverage-area",
 				icon: ""
 			}

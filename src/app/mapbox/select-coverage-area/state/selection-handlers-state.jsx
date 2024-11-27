@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { Popup } from "react-map-gl";
-import DraggablePopup from "./draggable-popup";
+import DraggablePopup from "../components/draggable-popup";
 
 
 export const useStateHandlers = ({
