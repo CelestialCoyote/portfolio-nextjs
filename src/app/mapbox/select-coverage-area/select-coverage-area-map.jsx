@@ -1,23 +1,23 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import Map, { Layer, Source } from "react-map-gl";
+import Map from "react-map-gl";
 import { FullscreenControl, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
 import ZoomLevelDisplay from "@/components/maps/zoom-level-display";
 import SelectionAreaType from "./components/selection-area-type";
 import "mapbox-gl/dist/mapbox-gl.css";
 
+import StateLayers from "./state/layers-state";
 import { useStateHandlers } from "./state/selection-handlers-state";
 import { StateHoverPopup, SelectedStatesPopup } from "./state/selection-handlers-state";
-import { stateFillLayer, stateHighlightLayer, stateSelectedLayer } from "./state/map-styles-state";
 
+import CountyLayers from "./county/layers-county";
 import { useCountyHandlers } from "./county/selection-handlers-county";
 import { CountyHoverPopup, SelectedCountyPopup } from "./county/selection-handlers-county";
-import { countyFillLayer, countyHighlightLayer, countySelectedLayer } from "./county/map-styles-county";
 
+import ZipCodeLayers from "./zip-code/layers-zip-code";
 import { useZipCodeHandlers } from "./zip-code/selection-handlers-zip-code";
 import { ZipHoverPopup, SelectedZipCodesPopup } from "./zip-code/selection-handlers-zip-code";
-import { zipFillLayer, zipHighlightLayer, zipSelectedLayer } from "./zip-code/map-styles-zip-code";
 
 
 const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -37,31 +37,26 @@ export default function SelectCoverageAreaMap() {
     const [mapStyle] = useState("mapbox://styles/mapbox/light-v11");
     const [selectAreaType, setSelectAreaType] = useState("state");
 
+    // useState, filter and functions for state selections
     const [stateHoverInfo, setStateHoverInfo] = useState(null);
     const [selectedStates, setSelectedStates] = useState([]);
-
-    const [countyHoverInfo, setCountyHoverInfo] = useState(null);
-    const [selectedCounties, setSelectedCounties] = useState([]);
-
-    const [zipHoverInfo, setZipHoverInfo] = useState(null);
-    const [selectedZipCodes, setSelectedZipCodes] = useState([]);
-
-    // Filter and functions for state hover effect
     const hoverState = (stateHoverInfo && stateHoverInfo.STATE) || '';
 
     const { onStateHover, onStateClick, stateFilter, selectedStateFilter } =
         useStateHandlers({ setStateHoverInfo, setSelectedStates, selectedStates, hoverState });
 
-
-    // Filters and functions for county hover effect
+    // useState, filter and functions for county selections
+    const [countyHoverInfo, setCountyHoverInfo] = useState(null);
+    const [selectedCounties, setSelectedCounties] = useState([]);
     const hoverCounty = (countyHoverInfo && countyHoverInfo.ID) || '';
     const hoverCountyName = (countyHoverInfo && countyHoverInfo.COUNTY) || '';
 
     const { onCountyHover, onCountyClick, countyFilter, selectedCountyFilter } =
         useCountyHandlers({ setCountyHoverInfo, setSelectedCounties, selectedCounties, hoverCounty, hoverCountyName });
 
-
-    // Filter and functions for zip code hover effect
+    // useState, filter and functions for zip code selections
+    const [zipHoverInfo, setZipHoverInfo] = useState(null);
+    const [selectedZipCodes, setSelectedZipCodes] = useState([]);
     const hoverZip = (zipHoverInfo && zipHoverInfo.ZIP) || '';
 
     const { onZipHover, onZipClick, zipFilter, selectedZipFilter } =
@@ -109,70 +104,28 @@ export default function SelectCoverageAreaMap() {
                 ref={mapRef}
                 style={{ borderRadius: 8 }}
             >
+                {/* Show state layers if selected */}
                 {selectAreaType == "state" && (
-                    <Source type="vector" url="mapbox://celestialcoyote.98li4t0s">
-                        <Layer
-                            beforeId="waterway-label"
-                            {...stateFillLayer}
-                        />
-
-                        <Layer
-                            beforeId="waterway-label"
-                            {...stateHighlightLayer}
-                            filter={stateFilter}
-                        />
-
-                        <Layer
-                            beforeId="waterway-label"
-                            {...stateSelectedLayer}
-                            filter={selectedStateFilter}
-                        />
-                    </Source>
+                    <StateLayers
+                        stateFilter={stateFilter}
+                        selectedStateFilter={selectedStateFilter}
+                    />
                 )}
 
+                {/* Show county layers if selected */}
                 {selectAreaType == "county" && (
-                    <Source type="vector" url="mapbox://celestialcoyote.98li4t0s">
-                        <Layer
-                            beforeId="waterway-label"
-                            {...countyFillLayer}
-                        />
-
-                        <Layer
-                            beforeId="waterway-label"
-                            {...countyHighlightLayer}
-                            filter={countyFilter}
-                        />
-
-                        <Layer
-                            beforeId="waterway-label"
-                            {...countySelectedLayer}
-                            filter={selectedCountyFilter}
-                        />
-                    </Source>
+                    <CountyLayers
+                        countyFilter={countyFilter}
+                        selectedCountyFilter={selectedCountyFilter}
+                    />
                 )}
 
+                {/* Show zip code layers if selected */}
                 {selectAreaType == "zip" && (
-                    <Source type="vector" url="mapbox://celestialcoyote.98li4t0s">
-                        <Layer
-                            id="zip-fill"
-                            beforeId="waterway-label"
-                            {...zipFillLayer}
-                        />
-
-                        <Layer
-                            id="zip-highlight"
-                            beforeId="waterway-label"
-                            {...zipHighlightLayer}
-                            filter={zipFilter}
-                        />
-
-                        <Layer
-                            id="zip-selected"
-                            beforeId="waterway-label"
-                            {...zipSelectedLayer}
-                            filter={selectedZipFilter}
-                        />
-                    </Source>
+                    <ZipCodeLayers
+                        zipFilter={zipFilter}
+                        selectedZipFilter={selectedZipFilter}
+                    />
                 )}
 
                 {/* Native Mapbox controls. */}
