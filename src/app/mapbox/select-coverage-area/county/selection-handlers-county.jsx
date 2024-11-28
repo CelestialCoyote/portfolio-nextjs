@@ -15,8 +15,7 @@ export const useCountyHandlers = ({
     setCountyHoverInfo,
     setSelectedCounties,
     selectedCounties,
-    hoverCounty,
-    hoverCountyName
+    hoverCounty
 }) => {
     // Handle hover effect for counties
     const onCountyHover = useCallback((event) => {
@@ -79,7 +78,7 @@ export const useCountyHandlers = ({
 
 
 // County hover popup and draggable window.
-export const CountyHoverPopup = ({ hoverCounty, hoverCountyName, countyHoverInfo }) => (
+export const CountyHoverPopup = ({ hoverCounty, countyHoverInfo }) => (
     hoverCounty && (
         <Popup
             offset={25}
@@ -89,10 +88,13 @@ export const CountyHoverPopup = ({ hoverCounty, hoverCountyName, countyHoverInfo
             closeButton={false}
             closeOnClick={false}
         >
-            <div className="flex bg-blue-400 text-black justify-center p-2">
-                <p className="font-bold">County:</p>
-                <p className="ml-2">{hoverCountyName}</p>
-            </div>
+            <p className="bg-blue-400 text-black font-bold text-center rounded-t-[4px] p-2">
+                County:
+            </p>
+
+            <p className="bg-slate-200 text-black text-center rounded-b-[4px] px-2 py-1">
+                {countyHoverInfo.COUNTY}
+            </p>
         </Popup>
     )
 );
@@ -102,7 +104,7 @@ export const SelectedCountyPopup = ({ selectAreaType, selectedCounties }) => (
     selectAreaType === "county" && (
         <DraggablePopup>
             <div
-                className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
+                className="absolute bg-white text-black w-[210px] rounded p-2 cursor-move"
                 style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
             >
                 <h4 className="text-center font-bold mb-2">

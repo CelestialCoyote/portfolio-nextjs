@@ -74,3 +74,55 @@ body {
         /* Firefox */
     }
 }
+
+
+
+/* 
+.mapboxgl-popup: This class is applied to the container of the popup.
+.mapboxgl-popup-content: This class is applied to the content of the popup.
+.mapboxgl-popup-close-button: This class is applied to the close button of the popup.
+.mapboxgl-popup-anchor-top, .mapboxgl-popup-anchor-bottom, .mapboxgl-popup-anchor-left, .mapboxgl-popup-anchor-right: These classes are applied to the popup based on its anchor position relative to the map.
+.mapboxgl-popup-tip: This class is applied to the tip of the popup arrow.
+.mapboxgl-popup-tip-container: This class may be applied to the container of the popup tip.
+.mapboxgl-popup-tip-inner: This class may be applied to the inner element of the popup tip.
+.mapboxgl-popup-tip-line: This class may be applied to the line element of the popup tip.
+.mapboxgl-popup-content-wrapper: This class may be applied to the wrapper element of the popup content.
+*/
+
+/* Overrides the original padding of the Popup component in the Map */
+.mapboxgl-popup-content {
+	border-radius: 4px !important;
+	padding: 0 !important;
+}
+
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+	border-top-color:  transparent !important;
+}
+
+/*
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+	border-bottom-color: transparent !important;
+}
+*/
+
+/*
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+	border-top-color:  transparent !important;
+}
+*/
+
+/*
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+	border-right-color: transparent !important;
+}
+*/
+
+/*
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+	border-left-color: transparent !important;
+}
+*/

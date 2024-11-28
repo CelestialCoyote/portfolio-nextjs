@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import Map from "react-map-gl";
-import { FullscreenControl, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
+import Map, { FullscreenControl, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
 import ZoomLevelDisplay from "@/components/maps/zoom-level-display";
 import SelectionAreaType from "./components/selection-area-type";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -49,10 +48,9 @@ export default function SelectCoverageAreaMap() {
     const [countyHoverInfo, setCountyHoverInfo] = useState(null);
     const [selectedCounties, setSelectedCounties] = useState([]);
     const hoverCounty = (countyHoverInfo && countyHoverInfo.ID) || '';
-    const hoverCountyName = (countyHoverInfo && countyHoverInfo.COUNTY) || '';
 
     const { onCountyHover, onCountyClick, countyFilter, selectedCountyFilter } =
-        useCountyHandlers({ setCountyHoverInfo, setSelectedCounties, selectedCounties, hoverCounty, hoverCountyName });
+        useCountyHandlers({ setCountyHoverInfo, setSelectedCounties, selectedCounties, hoverCounty });
 
     // useState, filter and functions for zip code selections
     const [zipHoverInfo, setZipHoverInfo] = useState(null);

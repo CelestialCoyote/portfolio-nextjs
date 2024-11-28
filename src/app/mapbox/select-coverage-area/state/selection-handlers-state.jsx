@@ -71,10 +71,13 @@ export const StateHoverPopup = ({ hoverState, stateHoverInfo }) => (
             closeButton={false}
             closeOnClick={false}
         >
-            <div className="flex bg-blue-400 text-black justify-center p-2">
-                <p className="font-bold">State:</p>
-                <p className="ml-2">{hoverState}</p>
-            </div>
+            <p className="bg-blue-400 text-black font-bold text-center rounded-t-[4px] p-2">
+                State:
+            </p>
+
+            <p className="bg-slate-200 text-black text-center rounded-b-[4px] px-2 py-1">
+                {stateHoverInfo.STATE}
+            </p>
         </Popup>
     )
 );
@@ -83,10 +86,13 @@ export const SelectedStatesPopup = ({ selectAreaType, selectedStates }) => (
     selectAreaType === "state" && (
         <DraggablePopup>
             <div
-                className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
+                className="absolute bg-white text-black w-[210px] rounded p-2 cursor-move"
                 style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
             >
-                <h4 className="text-center font-bold mb-2">Selected States</h4>
+                <h4 className="text-center font-bold mb-2">
+                    Selected States
+                </h4>
+
                 <div className="h-48 text-sm overflow-auto">
                     {selectedStates.length > 0 ? (
                         selectedStates

@@ -71,7 +71,14 @@ export const ZipHoverPopup = ({ hoverZip, zipHoverInfo }) => (
             closeButton={false}
             closeOnClick={false}
         >
-            <div className="flex bg-blue-400 text-black justify-center p-2">
+            <p className="bg-blue-400 text-black font-bold text-center rounded-t-[4px] p-2">
+            Zip Code:
+            </p>
+
+            <p className="bg-slate-200 text-black text-center rounded-b-[4px] px-2 py-1">
+                {zipHoverInfo.ZIP}
+            </p>
+            {/* <div className="flex bg-blue-400 text-black justify-center p-2">
                 Zip Code:
             </div>
 
@@ -79,7 +86,7 @@ export const ZipHoverPopup = ({ hoverZip, zipHoverInfo }) => (
                 <p className="text-center font-bold">
                     {hoverZip}
                 </p>
-            </div>
+            </div> */}
         </Popup>
     )
 );
@@ -88,7 +95,7 @@ export const SelectedZipCodesPopup = ({ selectAreaType, selectedZipCodes }) => (
     selectAreaType === "zip" && (
         <DraggablePopup>
             <div
-                className="absolute bg-white text-black w-48 rounded p-2 cursor-move"
+                className="absolute bg-white text-black w-[210px] rounded p-2 cursor-move"
                 style={{ boxShadow: `20px 20px 15px rgb(0 0 0 / 0.5)` }}
             >
                 <h4 className="text-center font-bold mb-2">
