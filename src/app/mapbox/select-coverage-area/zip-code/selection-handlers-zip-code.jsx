@@ -72,21 +72,12 @@ export const ZipHoverPopup = ({ hoverZip, zipHoverInfo }) => (
             closeOnClick={false}
         >
             <p className="bg-blue-400 text-black font-bold text-center rounded-t-[4px] p-2">
-            Zip Code:
+                Zip Code:
             </p>
 
             <p className="bg-slate-200 text-black text-center rounded-b-[4px] px-2 py-1">
                 {zipHoverInfo.ZIP}
             </p>
-            {/* <div className="flex bg-blue-400 text-black justify-center p-2">
-                Zip Code:
-            </div>
-
-            <div className="flex flex-col bg-slate-200 text-black rounded-b-lg px-2 py-1">
-                <p className="text-center font-bold">
-                    {hoverZip}
-                </p>
-            </div> */}
         </Popup>
     )
 );

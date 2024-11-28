@@ -52,6 +52,12 @@ export const navData = [
 				label: "Select Area",
 				link: "/mapbox/select-coverage-area",
 				icon: ""
+			},
+			{
+                id: 4,
+				label: "Military Housing Allowance",
+				link: "/mapbox/mha-map",
+				icon: ""
 			}
 		]
 	},

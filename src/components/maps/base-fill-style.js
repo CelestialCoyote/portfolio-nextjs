@@ -9,7 +9,7 @@
 export const basesFill = {
     id: "bases-fill",
     type: "fill",
-    "source-layer": "us-military-bases-adkg8p",
+    "source-layer": "us-military-bases-73wtm7",
     minzoom: 2,
     maxzoom: 16,
     paint: {
