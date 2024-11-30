@@ -22,14 +22,22 @@ export default function BAH({ data }) {
 
     return (
         <div className="flex flex-col w-full h-full">
-            <h3 className="text-center font-bold h-10">
+            <h4 className="text-center font-bold">
                 BAH Rates:
-            </h3>
+            </h4>
 
             <div className="flex justify-between text-sm font-bold mb-2">
-                <p className="text-center w-1/3">Pay Grade:</p>
-                <p className="text-center w-1/3">W/ Dependent:</p>
-                <p className="text-center w-1/3">WO/ Dependent:</p>
+                <p className="text-center w-1/3">
+                    Pay Grade:
+                </p>
+
+                <p className="text-center w-1/3">
+                    W/ Dependent:
+                </p>
+                
+                <p className="text-center w-1/3">
+                    WO/ Dependent:
+                </p>
             </div>
 
             <div className="flex justify-between items-center">
@@ -41,78 +49,14 @@ export default function BAH({ data }) {
                     />
                 </div>
 
-                <p className="text-center w-1/3">${withDep}</p>
-                <p className="text-center w-1/3">${withoutDep}</p>
+                <p className="text-center w-1/3">
+                    ${withDep}
+                </p>
+
+                <p className="text-center w-1/3">
+                    ${withoutDep}
+                </p>
             </div>
         </div>
     );
 };
-
-
-
-
-// import { useState } from "react";
-// import Dropdown from "./dropdown";
-
-// const options = [
-//     "E01",
-//     "E02",
-//     "E03",
-//     "E04",
-//     "E05",
-//     "E06",
-//     "E07",
-//     "E08",
-//     "E09",
-//     "W01",
-//     "W02",
-//     "W03",
-//     "W04",
-//     "W05",
-//     "O01E",
-//     "O02E",
-//     "O03E",
-//     "O01",
-//     "O02",
-//     "O03",
-//     "O04",
-//     "O05",
-//     "O06",
-//     "O07"
-// ];
-
-// export default function BAH({ data }) {
-//     const [payGrade, setPayGrade] = useState(options[4]);
-
-//     // Find the data for the selected pay grade
-//     const selectedData = data.find(item => item[payGrade]);
-
-//     const withDep = selectedData ? selectedData[payGrade][0] : "N/A";
-//     const withoutDep = selectedData ? selectedData[payGrade][1] : "N/A";
-
-//     return (
-//         <div className="flex flex-col w-full h-full">
-//             <h3 className="text-center font-bold h-10">
-//                 BAH Rates:
-//             </h3>
-
-//             <div className="flex justify-between text-sm font-bold mb-2">
-//                 <p className="text-center w-1/3">Pay Grade:</p>
-//                 <p className="text-center w-1/3">W/ Dependent:</p>
-//                 <p className="text-center w-1/3">WO/ Dependent:</p>
-//             </div>
-
-//             <div className="flex">
-//                 <Dropdown
-//                     options={options}
-//                     selectedOption={payGrade}
-//                     setSelectedOption={setPayGrade}
-//                 />
-
-//                 {/* <p className="text-center w-1/3">{payGrade}</p> */}
-//                 <p className="text-center w-1/3">${withDep}</p>
-//                 <p className="text-center w-1/3">${withoutDep}</p>
-//             </div>
-//         </div>
-//     );
-// };

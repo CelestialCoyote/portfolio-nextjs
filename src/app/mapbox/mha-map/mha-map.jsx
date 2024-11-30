@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import Map, { Layer, Popup, Source, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
-import AreaDetails from "./area-details";
-import BaseDetails from "./base-details";
+import Map, { Layer, Popup, Source } from "react-map-gl";
+import { GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
 import BAH from "./bah";
 import ZoomLevelDisplay from "@/components/maps/zoom-level-display";
 import BaseMarkersDropdown from "@/components/military-base-markers/base-markers-dropdown";
-import { zipLayer, zipHighlightLayer, createZipLayer, createMhaZipLayer, basesFill } from "./map-style";
-import zipData from "./zcta-data.json";
+import { zipLayer, zipHighlightLayer, createZipLayer } from "./map-style";
+import { basesFill } from "@/components/military-base-markers/base-fill-style";
 import mhaData from "./mha-data-2024.json";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -24,46 +23,20 @@ const initialViewState = {
     maxZoom: 18
 };
 
-// export default function MHAMap({ mhaData }) {
 export default function MHAMap() {
     const mapRef = useRef();
     const [zipHoverInfo, setZipHoverInfo] = useState(null);
     const [selectedZip, setSelectedZip] = useState(null);
-    const [additionalData, setAdditionalData] = useState(null);
     const [bah, setBah] = useState(null);
     const [selectedArea, setSelectedArea] = useState(null);
 
 
-    // Pull data for zip code from additional json file.
-    const getDataByZipCode = (zipCode) => {
-        const data = zipData.find(item => item.ZCTA5CE20 === zipCode);
-
-        return data || null;
-    };
-
-    // const getBAHByZipCode = (zipCode) => {
-    //     // Find the relevant MHA data in bahData
-    //     const mhaData = bahData.find(item => item.zip_codes.includes(zipCode));
-    //     const bahRates = mhaData ? mhaData.bah : null;
-
-    //     // const mhaArea = mhaData.find(item => item.zip_codes.includes(zipCode));
-    //     // const bahRates = mhaArea ? mhaArea.bah : null;
-
-    //     setBah(bahRates);
-    // };
-
-    // Check if a zip code from MattsData matches the GEOID20 properties
-    const isMatchingZip = (zipCode) => {
-        return zipData.some(data => data.ZCTA5CE20 === zipCode);
-    };
-
     // Filter zipData based on selectedArea's zip codes
     const filteredZipData = useMemo(() => {
         if (selectedArea && selectedArea.properties["zip_codes"]) {
-            const zipCodes = selectedArea.properties["zip_codes"];
-
-            return zipData.filter(item => zipCodes.includes(item.ZCTA5CE20));
+            return selectedArea.properties["zip_codes"];
         }
+
         return [];
     }, [selectedArea]);
 
@@ -71,22 +44,11 @@ export default function MHAMap() {
         const zip = event.features && event.features[0];
         const zipNumber = zip && zip.properties.ZCTA5CE20;
 
-        // Fetch additional data based on the zip code
-        const data = getDataByZipCode(zipNumber);
-
-        if (zip && isMatchingZip(zip.properties.GEOID20)) {
+        if (zip) {
             setZipHoverInfo({
                 longitude: event.lngLat.lng,
                 latitude: event.lngLat.lat,
-                GEOID: zip && zip.properties.GEOID20,
-                data: data
-            });
-        } else if (zip && !isMatchingZip(zip.properties.GEOID20)) {
-            setZipHoverInfo({
-                longitude: event.lngLat.lng,
-                latitude: event.lngLat.lat,
-                GEOID: zip && zip.properties.GEOID20,
-                data: null
+                GEOID: zipNumber,
             });
         } else {
             setZipHoverInfo(null);
@@ -105,7 +67,6 @@ export default function MHAMap() {
     // Handle when user clicks on highlighted zip code.
     const handleZipClick = useCallback(event => {
         const layerIds = mapRef.current.getStyle().layers.map(layer => layer.id);
-        // console.log(layerIds); // Log available layer IDs
 
         // Ensure 'zip' is in the list
         if (!layerIds.includes('zip')) {
@@ -125,50 +86,16 @@ export default function MHAMap() {
 
         if (features.length > 0) {
             const zipNumber = features[0].properties.GEOID20; // Extract zip code from GEOID20 property
-            const data = getDataByZipCode(zipNumber);
 
             setSelectedZip(zipNumber);
             getBAHByZipCode(zipNumber);
-
-            if (data) {
-                setAdditionalData(data);
-            } else {
-                setAdditionalData({
-                    ZCTA5CE20: zipNumber,
-                    installation: ["No Data"],
-                    active_listing_count: null,
-                    median_listing_price: null,
-                    median_household_income: null,
-                    area_median_home_value: null,
-                    area_wealth_percentile: null
-                });
-            };
         } else {
             setSelectedZip(null);
-            setAdditionalData(null);
         };
     }, [mhaData]);
 
     return (
         <div className="flex flex-row w-full h-full max-h-full gap-x-4">
-            <div className="flex flex-col bg-slate-200 text-black w-[40%] h-full rounded-lg gap-y-2 px-2 py-1">
-                <h2 className="text-center mb-4">Area Details</h2>
-
-                <div className="flex flex-col w-full h-full gap-y-2 overflow-y-hidden">
-                    <div className="w-full h-[15%]">
-                        {selectedArea && <BaseDetails data={selectedArea.properties} />}
-                    </div>
-
-                    <div className="w-full h-[40%] max-h-[40%]">
-                        {additionalData && <AreaDetails data={additionalData} />}
-                    </div>
-
-                    <div className="w-full h-[40%] max-h-[40%] pr-2">
-                        {selectedZip && <BAH data={bah} />}
-                    </div>
-                </div>
-            </div>
-
             <Map
                 initialViewState={initialViewState}
                 minZoom={2}
@@ -216,20 +143,14 @@ export default function MHAMap() {
                             <p className="font-bold">Zip:</p>
                             <p className="ml-2">{hoverZip}</p>
                         </div>
-
-                        {zipHoverInfo.data != null &&
-                            <p className="text-red-500 p-1">
-                                Click for more info.
-                            </p>
-                        }
                     </Popup>
                 )}
 
 
                 {/* Native Mapbox controls. */}
+                <ScaleControl position={"bottom-right"} />
                 <GeolocateControl position={"bottom-right"} />
                 <NavigationControl position={"bottom-right"} />
-                <ScaleControl />
 
                 {/* Custom controls. */}
                 <div className="absolute top-2 left-0 right-0 hidden lg:block">
@@ -244,6 +165,30 @@ export default function MHAMap() {
                         mapRef={mapRef}
                         setSelectedArea={setSelectedArea}
                     />
+                </div>
+
+                <div className="absolute bottom-8 left-2 flex flex-col bg-slate-100 text-black w-[300px] h-[300px] rounded-lg gap-y-2 px-2 py-1">
+                    <h4 className="text-center mb-2">
+                        Military Housing Allowance
+                    </h4>
+
+                    <div className="flex flex-col w-full h-full gap-y-4 overflow-y-hidden">
+                        {selectedArea &&
+                            <div className="flex flex-col items-center">
+                                <h4 className="text-center font-bold">
+                                    Installation:
+                                </h4>
+
+                                <p className="text-center">
+                                    {selectedArea.properties.installation}
+                                </p>
+                            </div>
+                        }
+
+                        {selectedZip &&
+                            <BAH data={bah} />
+                        }
+                    </div>
                 </div>
             </Map>
         </div>

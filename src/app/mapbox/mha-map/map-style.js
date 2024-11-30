@@ -25,14 +25,13 @@ export const zipHighlightLayer = {
 
 
 export const createZipLayer = (zipData) => {
-    const zipCodes = zipData.map(item => item.ZCTA5CE20);
+    const zipCodes = zipData.map(item => item);
 
     // console.log("zipData: ", zipData);
 
     return {
         id: 'mattZip',
         type: 'fill',
-        // "source-layer": "zipCode",
         "source-layer": "zcta",
         minzoom: 5,
         maxzoom: 18,
@@ -49,7 +48,6 @@ export const createZipLayer = (zipData) => {
 export const createMhaZipLayer = (mhaZipCodes) => ({
     id: 'mha-zip',
     type: 'fill',
-    // "source-layer": "zipCode",
     "source-layer": "zcta",
     minzoom: 5,
     maxzoom: 18,
@@ -73,4 +71,3 @@ export const basesFill = {
         "fill-color": "rgba(0, 255, 255, 0.5)"
     }
 };
-
