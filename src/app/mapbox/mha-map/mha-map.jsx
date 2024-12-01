@@ -1,14 +1,14 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Map, { Layer, Popup, Source } from "react-map-gl";
 import { GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl";
-import BAH from "./bah";
+import { useZipCodeHandlers } from "./components/zip-code-handlers";
+import BAH from "./components/bah";
 import ZoomLevelDisplay from "@/components/maps/zoom-level-display";
 import BaseMarkersDropdown from "@/components/military-base-markers/base-markers-dropdown";
-import { zipLayer, zipHighlightLayer, createZipLayer } from "./map-style";
+import ZipCodeLayers from "./components/layers-zip-code";
 import { basesFill } from "@/components/military-base-markers/base-fill-style";
-import mhaData from "./mha-data-2024.json";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 
@@ -25,74 +25,28 @@ const initialViewState = {
 
 export default function MHAMap() {
     const mapRef = useRef();
-    const [zipHoverInfo, setZipHoverInfo] = useState(null);
     const [selectedZip, setSelectedZip] = useState(null);
     const [bah, setBah] = useState(null);
     const [selectedArea, setSelectedArea] = useState(null);
 
 
-    // Filter zipData based on selectedArea's zip codes
-    const filteredZipData = useMemo(() => {
-        if (selectedArea && selectedArea.properties["zip_codes"]) {
-            return selectedArea.properties["zip_codes"];
-        }
-
-        return [];
-    }, [selectedArea]);
-
-    const onZipHover = useCallback(event => {
-        const zip = event.features && event.features[0];
-        const zipNumber = zip && zip.properties.ZCTA5CE20;
-
-        if (zip) {
-            setZipHoverInfo({
-                longitude: event.lngLat.lng,
-                latitude: event.lngLat.lat,
-                GEOID: zipNumber,
-            });
-        } else {
-            setZipHoverInfo(null);
-        }
-    }, []);
-
+    // useState, filter and functions for zip code selections
+    const [zipHoverInfo, setZipHoverInfo] = useState(null);
+    const [selectedZipCodes, setSelectedZipCodes] = useState([]);
     const hoverZip = (zipHoverInfo && zipHoverInfo.GEOID) || '';
-    const zipFilter = useMemo(() => {
-        if (hoverZip) {
-            return ['in', 'GEOID20', hoverZip];
-        } else {
-            return ['==', 'GEOID20', '']; // Provide a default filter value when selectedZip is null
-        }
-    }, [hoverZip]);
 
-    // Handle when user clicks on highlighted zip code.
-    const handleZipClick = useCallback(event => {
-        const layerIds = mapRef.current.getStyle().layers.map(layer => layer.id);
-
-        // Ensure 'zip' is in the list
-        if (!layerIds.includes('zip')) {
-            console.error("Layer 'zip' does not exist.");
-        }
-
-        const features = mapRef.current.queryRenderedFeatures(event.point, {
-            layers: ['zip', 'zip']
+    const { onZipHover, onZipClick, zipFilter, filteredZipData } =
+        useZipCodeHandlers({
+            setZipHoverInfo,
+            setSelectedZipCodes,
+            selectedZipCodes,
+            selectedArea,
+            hoverZip,
+            mapRef, // Pass mapRef here
+            setBah, // Pass setBah if needed
+            setSelectedZip, // Pass setSelectedZip if needed
         });
 
-        const getBAHByZipCode = (zipCode) => {
-            const mhaArea = mhaData.find(item => item.zip_codes.includes(zipCode));
-            const bahRates = mhaArea ? mhaArea.bah : null;
-
-            setBah(bahRates);
-        };
-
-        if (features.length > 0) {
-            const zipNumber = features[0].properties.GEOID20; // Extract zip code from GEOID20 property
-
-            setSelectedZip(zipNumber);
-            getBAHByZipCode(zipNumber);
-        } else {
-            setSelectedZip(null);
-        };
-    }, [mhaData]);
 
     return (
         <div className="flex flex-row w-full h-full max-h-full gap-x-4">
@@ -103,28 +57,16 @@ export default function MHAMap() {
                 mapboxAccessToken={mapboxToken}
                 interactiveLayerIds={['zip']}
                 onMouseMove={onZipHover}
-                onClick={handleZipClick}
+                onClick={onZipClick}
                 ref={mapRef}
                 style={{ borderRadius: 8 }}
             >
-                <Source type="vector" url="mapbox://celestialcoyote.98li4t0s">
-                    {selectedArea &&
-                        <Layer
-                            beforeId="waterway-label"
-                            {...createZipLayer(filteredZipData)}
-                        />
-                    }
-
-                    <Layer
-                        beforeId="waterway-label"
-                        {...zipLayer}
-                    />
-
-                    <Layer
-                        beforeId="waterway-label"
-                        {...zipHighlightLayer} filter={zipFilter}
-                    />
-                </Source>
+                {/* Zip code layers */}
+                <ZipCodeLayers
+                    zipFilter={zipFilter}
+                    filteredZipData={filteredZipData}
+                    selectedArea={selectedArea}
+                />
 
                 <Source type="vector" url="mapbox://celestialcoyote.2xl084fl">
                     <Layer {...basesFill} />
