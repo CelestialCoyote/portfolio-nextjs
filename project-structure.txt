@@ -1,0 +1,38 @@
+/project
+│
+├── /public
+│   └── /images
+│
+├── /src
+│   ├── /app
+│   │   ├── /api
+│   │   │   ├── nasa.ts
+│   │   │   ├── mapbox.ts
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── /fonts
+│   │   ├── /mapbox
+│   │   ├── /NASA
+│   │   │    
+│   │   ├── favicon.ico  
+│   │   ├── global.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   │
+│   └── /components
+│
+├── /.next
+│
+├── /node_modules
+│    
+├── .env.local
+├── .eslintrc.json
+├── .gitignore
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── tailwind.config.ts
+├── tsconfig.json
+└── project-structure.txt
