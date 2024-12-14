@@ -67,5 +67,4 @@ export default function NasaImageResults({ items, search }) {
 			</div>
 		</div>
 	)
-
 }
