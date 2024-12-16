@@ -1,0 +1,74 @@
+{
+    "technologies": [
+        { 
+            "title": "JavaScript",
+            "src": "/tech-icons/javascript.svg",
+            "alt": "javascript_icon"
+        },
+        { 
+            "title": "TypeScript",
+            "src": "/tech-icons/typescript.svg",
+            "alt": "typescript_icon"
+        },
+        { 
+            "title": "HTML5",
+            "src": "/tech-icons/html-5.svg",
+            "alt": "html5_icon"
+        },
+        { 
+            "title": "CSS3",
+            "src": "/tech-icons/css-3.svg",
+            "alt": "css3_icon"
+        },
+        { 
+            "title": "React",
+            "src": "/tech-icons/react.svg",
+            "alt": "react_icon"
+        },
+        { 
+            "title": "Node.js",
+            "src": "/tech-icons/nodejs.svg",
+            "alt": "nodejs_icon"
+        },
+        { 
+            "title": "Next.js",
+            "src": "/tech-icons/next-js.svg",
+            "alt": "nextjs_icon"
+        },
+        { 
+            "title": "Express",
+            "src": "/tech-icons/express.png",
+            "alt": "express_icon"
+        },
+        { 
+            "title": "MongoDB",
+            "src": "/tech-icons/mongodb.png",
+            "alt": "mongodb_icon"
+        },
+        { 
+            "title": "MySQL",
+            "src": "/tech-icons/mysql.png",
+            "alt": "mysql_icon"
+        },
+        { 
+            "title": "AWS S3",
+            "src": "/tech-icons/aws_s3.png",
+            "alt": "awss3_icon"
+        },
+        { 
+            "title": "Tailwind",
+            "src": "/tech-icons/tailwind-css.svg",
+            "alt": "tailwindcss_icon"
+        },
+        { 
+            "title": "Material UI",
+            "src": "/tech-icons/material-ui.png",
+            "alt": "materialui_icon"
+        },
+        { 
+            "title": "Python",
+            "src": "/tech-icons/python.svg",
+            "alt": "python_icon"
+        }
+    ]
+}
