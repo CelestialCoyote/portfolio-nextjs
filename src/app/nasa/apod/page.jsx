@@ -29,7 +29,7 @@ export default async function Apod() {
     if (!data) return <p>No photo data</p>
 
     return (
-        <div className="pt-20">
+        <div className="bg-slate-400 h-[500px] pt-20">
             <h1 className='text-3xl text-center mt-4 mb-6'>
                 Astronomy Photo of the Day
             </h1>
