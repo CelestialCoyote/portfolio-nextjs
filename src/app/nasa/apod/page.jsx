@@ -1,32 +1,32 @@
 import Image from "next/image";
 
 
-const getAPODData = async () => {
-    const date = new Date();
-    let currentDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-    //console.log(currentDate)
+// const getAPODData = async () => {
+//     const date = new Date();
+//     let currentDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+//     //console.log(currentDate)
 
-    try {
-        const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}&date=${currentDate}`);
+//     try {
+//         const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${process.env.NASA_API_KEY}&date=${currentDate}`);
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch data");
-        } else {
-            console.log("data fetched");
-        };
+//         if (!response.ok) {
+//             throw new Error("Failed to fetch data");
+//         } else {
+//             console.log("data fetched");
+//         };
 
-        return response.json();
-    } catch (error) {
-        console.log(error);
-    };
-}
+//         return response.json();
+//     } catch (error) {
+//         console.log(error);
+//     };
+// }
 
 
 export default async function Apod() {
-    const data = await getAPODData();
+    // const data = await getAPODData();
     // console.log(data)
 
-    if (!data) return <p>No photo data</p>
+    // if (!data) return <p>No photo data</p>
 
     return (
         <div className="bg-slate-400 h-[500px] pt-20">
@@ -34,9 +34,9 @@ export default async function Apod() {
                 Astronomy Photo of the Day
             </h1>
 
-            <div className="flex justify-center mt-10">
+            {/* <div className="flex justify-center mt-10">
                 {data.title}
-            </div>
+            </div> */}
 
             {/* <div className='grid lg:grid-cols-2 lg:gap-4 p-8'>
                 {data?.media_type === 'video' ? (
