@@ -32,7 +32,7 @@
 		"**/*.ts",
 		"**/*.tsx",
 		".next/types/**/*.ts"
-	],
+, "src/app/nasa/apod/page.jsx", "src/app/nasa/apod/loading.jsx"	],
 	"exclude": [
 		"node_modules"
 	]
