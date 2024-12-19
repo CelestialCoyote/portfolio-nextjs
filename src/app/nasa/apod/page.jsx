@@ -34,7 +34,11 @@ export default async function Apod() {
                 Astronomy Photo of the Day
             </h1>
 
-            <div className='grid lg:grid-cols-2 lg:gap-4 p-8'>
+            <div className="flex justify-center mt-10">
+                {data.title}
+            </div>
+
+            {/* <div className='grid lg:grid-cols-2 lg:gap-4 p-8'>
                 {data?.media_type === 'video' ? (
                     <div className='relative h-[50vh] mb-4 lg:mb-0'>
                         <iframe
@@ -76,7 +80,7 @@ export default async function Apod() {
                         {data?.explanation}
                     </p>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }
