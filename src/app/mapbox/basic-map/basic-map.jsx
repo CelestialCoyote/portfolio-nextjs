@@ -38,7 +38,7 @@ export default function BasicMap() {
 
     return (
         <div className="w-full h-screen pb-16">
-            <div className="flex justify-center bg-slate-200 text-xl gap-x-12 rounded-xl mb-8 p-2">
+            <div className="flex justify-center bg-slate-200 text-black text-xl gap-x-12 rounded-xl mb-8 p-2">
                 <div className="">
                     Longitude: {lng} |
                 </div>
