@@ -14,6 +14,14 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'epic.gsfc.nasa.gov',
             },
+            {
+                protocol: 'https',
+                hostname: 'www.youtube.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'www.twitter.com',
+            },
         ],
     },
 };

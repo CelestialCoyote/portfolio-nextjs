@@ -3,12 +3,14 @@ import Image from "next/image";
 
 const baseURL = process.env.BASE_API_URL;
 
-
 const getAPODData = async () => {
     try {
+        // Simulate a delay for development
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         const response = await fetch(
             `${baseURL}/nasa/apod`,
-            { cache: 'no-store' }
+            { cache: "no-store" }
         );
 
         if (!response.ok) {
@@ -29,7 +31,11 @@ export default async function Apod() {
 
     console.log(`Base URL: ${baseURL}`);
 
-    if (!data) return <div className="pt-20">No photo data</div>;
+    if (!data) return (
+        <div className="text-2xl text-center pt-24">
+            No photo data
+        </div>
+    );
 
     return (
         <div className="pt-20">
@@ -42,24 +48,41 @@ export default async function Apod() {
                     <div className="relative h-[50vh] mb-4 lg:mb-0">
                         <iframe
                             className="absolute top-0 left-0 w-full rounded-t-lg lg:rounded-lg"
-                            src={data.url}
-                            title={data.title}
+                            src={data.url || "/images/NASA-logo.svg"}
+                            title={data.title || "NASA APOD Video"}
                             width="560"
                             height="349"
                             frameBorder="0"
                             allowFullScreen
                         />
                     </div>
-                ) : (
+                ) : data.media_type === "image" ? (
                     <div className="flex items-center justify-center rounded-lg mb-4 lg:mb-0">
                         <Image
                             className="w-full h-full object-contain object-center rounded-lg"
-                            src={data.url || "/NASA-logo.svg"}
+                            src={data.url || "/images/NASA-logo.svg"}
                             alt={data.title || "NASA APOD Image"}
                             width={500}
                             height={500}
                             priority
                         />
+                    </div>
+                ) : data.media_type === "other" ? (
+                    <div className="flex items-center justify-center rounded-lg mb-4 lg:mb-0">
+                        <Image
+                            className="w-full h-full object-contain object-center rounded-lg"
+                            src={"/images/NASA-logo.svg"}
+                            alt={data.title || "NASA APOD Image"}
+                            width={500}
+                            height={500}
+                            priority
+                        />
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center rounded-lg mb-4 lg:mb-0">
+                        <p>
+                            Unsupported content type.
+                        </p>
                     </div>
                 )}
 
